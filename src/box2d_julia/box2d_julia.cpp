@@ -79,6 +79,39 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   .method("skew", &b2Vec2::Skew)
   ;
 
+  mod.add_type<b2Rot>("Rot")
+  .constructor<float>()
+  .method("set_rotation!", &b2Rot::Set)
+  .method("identity!", &b2Rot::SetIdentity)
+  .method("get_angle", &b2Rot::GetAngle)
+  .method("x_axis", &b2Rot::GetXAxis)
+  .method("y_axis", &b2Rot::GetYAxis)
+  .method("get_s", [](const b2Rot& q) { return q.s; })
+  .method("get_c", [](const b2Rot& q) { return q.c; })
+  ;
+
+  mod.add_type<b2Transform>("Transform")
+  .constructor()
+  .constructor<const b2Vec2&, const b2Rot&>()
+  .method("set_transform!", &b2Transform::Set)
+  .method("identity!", &b2Transform::SetIdentity)
+  .method("get_p", [](b2Transform& transform) -> b2Vec2& { return transform.p; })
+  .method("get_q", [](b2Transform& transform) -> b2Rot& { return transform.q; })
+  ;
+
+  mod.add_type<b2Sweep>("Sweep")
+  .method("local_center", [](b2Sweep& sweep) -> b2Vec2& { return sweep.localCenter; })
+  .method("get_c0", [](b2Sweep& sweep) -> b2Vec2& { return sweep.c0; })
+  .method("get_c", [](b2Sweep& sweep) -> b2Vec2& { return sweep.c; })
+  .method("set_a0!", [](b2Sweep& sweep, float a0) { sweep.a0 = a0; })
+  .method("get_a0", [](b2Sweep& sweep) { return sweep.a0; })
+  .method("set_a!", [](b2Sweep& sweep, float a) { sweep.a = a; })
+  .method("get_a", [](b2Sweep& sweep) { return sweep.a; })
+  .method("set_alpha0!", [](b2Sweep& sweep, float alpha0) { sweep.alpha0 = alpha0; })
+  .method("get_alpha0", [](b2Sweep& sweep) { return sweep.alpha0; })
+  .method("get_transform", &b2Sweep::GetTransform)
+  ;
+
   mod.add_type<b2MassData>("MassData")
   .method("mass", [](b2MassData& massData) { return massData.mass; })
   .method("center", [](b2MassData& massData) { return massData.center; })
