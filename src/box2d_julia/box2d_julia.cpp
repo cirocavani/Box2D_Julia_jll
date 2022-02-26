@@ -1,6 +1,7 @@
 #include "box2d/box2d.h"
 #include "jlcxx/jlcxx.hpp"
 #include "jlcxx/functions.hpp"
+#include "jlcxx/array.hpp"
 
 enum ContactEvent {
   BEGIN_CONTACT = 0,
@@ -69,7 +70,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   .method("neg", [](const b2Vec2& v) { return -v; })
   .method("plus!", [](b2Vec2& v1, const b2Vec2& v2) { v1 += v2; })
   .method("minus!", [](b2Vec2& v1, const b2Vec2& v2) { v1 -= v2; })
-  .method("scale!", [](b2Vec2& v1, float a) { v1 *= a; })
+  .method("scale!", [](b2Vec2& v, float a) { v *= a; })
+  .method("dot", [](b2Vec2& v1, const b2Vec2& v2) { return b2Dot(v1, v2); })
   .method("length", &b2Vec2::Length)
   .method("length_squared", &b2Vec2::LengthSquared)
   .method("normalize!", &b2Vec2::Normalize)
@@ -102,6 +104,18 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
       shape.SetAsBox(hx, hy, center, angle);
     }
   )
+  .method(
+    "vertices!",
+    [](b2PolygonShape& shape, jlcxx::ArrayRef<jl_value_t*> vertices) {
+      b2Vec2* points = new b2Vec2[vertices.size()];
+      for (size_t i = 0; i < vertices.size(); ++i) {
+        points[i] = jlcxx::unbox<b2Vec2>(vertices[i]);
+      }
+      shape.Set(points, vertices.size());
+      delete [] points;
+    }
+  )
+  .method("centroid", [](b2PolygonShape& shape) -> b2Vec2& { return shape.m_centroid; })
   ;
   mod.add_type<b2CircleShape>("CircleShape", jlcxx::julia_base_type<b2Shape>());
   mod.add_type<b2EdgeShape>("EdgeShape", jlcxx::julia_base_type<b2Shape>());
