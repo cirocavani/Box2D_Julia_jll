@@ -20,32 +20,24 @@ https://docs.binarybuilder.org/stable/
 > **IMPORTANT** Tested only with Julia 1.6 (other version may present issues)
 
 ```sh
+# Local dev Box2D_jll.jl
+cd ~/.julia/dev/Box2D_jll
+git init
+git add .
+git commit -m "2.4.1-dev"
+cd -
+
+# cleanup
 rm -rf ~/.julia/dev/Box2D_Julia_jll
 rm -rf build products
-# julia --project build_tarballs.jl --verbose x86_64-apple-darwin
-# julia --project build_tarballs.jl --deploy=local --verbose x86_64-apple-darwin
-julia --project build_tarballs.jl --deploy=cirocavani/Box2D_Julia_jll.jl
+
+# julia --project build_tarballs.jl --verbose x86_64-apple-darwin-julia_version+1.6.3
+# julia --project build_tarballs.jl --deploy=cirocavani/Box2D_Julia_jll.jl
+julia --project build_tarballs.jl --deploy=local --verbose x86_64-apple-darwin-julia_version+1.6.3
 ```
 
 Test:
 
-```julia
-import Pkg
-Pkg.activate(; temp=true)
-Pkg.develop(["Box2D_jll", "Box2D_Julia_jll"])
-Pkg.add("CxxWrap")
-
-module Box2D
-    using Box2D_Julia_jll
-    using CxxWrap
-    @wrapmodule(libbox2d_julia)
-    function __init__()
-        @initcxx
-    end
-end
-
-import Main.Box2D as box2d
-
-g = box2d.Vec2()
-w = box2d.World(g)
+```sh
+julia test/DummyBox2D.jl
 ```
